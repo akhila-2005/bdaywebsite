@@ -1,0 +1,179 @@
+"use client"
+
+import type React from "react"
+
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Gift, Heart, Star, Sparkles } from "lucide-react"
+
+export default function HomePage() {
+  const [name, setName] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+  const router = useRouter()
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({ x: e.clientX, y: e.clientY })
+    }
+    window.addEventListener("mousemove", handleMouseMove)
+    return () => window.removeEventListener("mousemove", handleMouseMove)
+  }, [])
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!name.trim()) {
+      alert("Please enter your name!")
+      return
+    }
+
+    setIsLoading(true)
+
+    // Add a small delay for better UX
+    await new Promise((resolve) => setTimeout(resolve, 800))
+
+    // Redirect to the birthday input page with the name
+    router.push(`/enter-birthday?name=${encodeURIComponent(name.trim())}`)
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-500 via-red-500 via-orange-500 to-yellow-500 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        {/* Floating particles */}
+        {[...Array(30)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute animate-float opacity-70"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 5}s`,
+              animationDuration: `${3 + Math.random() * 4}s`,
+            }}
+          >
+            {i % 4 === 0 ? (
+              <Star className="h-4 w-4 text-yellow-300 animate-spin" />
+            ) : i % 4 === 1 ? (
+              <Sparkles className="h-3 w-3 text-pink-300 animate-pulse" />
+            ) : i % 4 === 2 ? (
+              <Heart className="h-3 w-3 text-red-300 animate-bounce" />
+            ) : (
+              <div className="w-2 h-2 bg-blue-300 rounded-full animate-ping" />
+            )}
+          </div>
+        ))}
+
+        {/* Rainbow circles */}
+        {[...Array(8)].map((_, i) => (
+          <div
+            key={`circle-${i}`}
+            className="absolute rounded-full animate-pulse opacity-20"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              width: `${50 + Math.random() * 100}px`,
+              height: `${50 + Math.random() * 100}px`,
+              background: `linear-gradient(45deg, 
+                hsl(${Math.random() * 360}, 70%, 60%), 
+                hsl(${Math.random() * 360}, 70%, 60%))`,
+              animationDelay: `${Math.random() * 3}s`,
+              animationDuration: `${2 + Math.random() * 3}s`,
+            }}
+          />
+        ))}
+
+        {/* Mouse follower */}
+        <div
+          className="absolute w-20 h-20 rounded-full bg-gradient-to-r from-pink-400 to-purple-400 opacity-30 animate-pulse pointer-events-none"
+          style={{
+            left: mousePosition.x - 40,
+            top: mousePosition.y - 40,
+            transition: "all 0.3s ease",
+          }}
+        />
+      </div>
+
+      <Card className="w-full max-w-md shadow-2xl relative z-10 bg-white/90 backdrop-blur-sm border-2 border-pink-200 animate-bounce-slow">
+        <CardHeader className="text-center space-y-4">
+          <div className="flex justify-center">
+            <Gift className="h-12 w-12 text-pink-500 animate-spin-slow" />
+          </div>
+          <CardTitle className="text-2xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 via-red-600 to-orange-600 bg-clip-text text-transparent animate-gradient-x">
+            Birthday Wishes
+          </CardTitle>
+          <CardDescription className="text-gray-600 animate-fade-in">Let's start with your name! 🎉</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="name" className="text-sm font-medium text-purple-700">
+                Your Name
+              </Label>
+              <Input
+                id="name"
+                type="text"
+                placeholder="Enter your name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full border-2 border-pink-200 focus:border-purple-400 transition-all duration-300 focus:shadow-lg focus:shadow-pink-200"
+                required
+              />
+            </div>
+
+            <Button
+              type="submit"
+              className="w-full bg-gradient-to-r from-purple-500 via-pink-500 via-red-500 to-orange-500 hover:from-purple-600 hover:via-pink-600 hover:via-red-600 hover:to-orange-600 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl animate-gradient-x"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Loading...
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Heart className="h-4 w-4 animate-pulse" />
+                  Continue
+                </div>
+              )}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      <style jsx>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        @keyframes bounce-slow {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-10px); }
+        }
+        @keyframes spin-slow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        @keyframes gradient-x {
+          0%, 100% { background-size: 200% 200%; background-position: left center; }
+          50% { background-size: 200% 200%; background-position: right center; }
+        }
+        @keyframes fade-in {
+          0% { opacity: 0; transform: translateY(10px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+        .animate-float { animation: float 4s ease-in-out infinite; }
+        .animate-bounce-slow { animation: bounce-slow 3s ease-in-out infinite; }
+        .animate-spin-slow { animation: spin-slow 4s linear infinite; }
+        .animate-gradient-x { animation: gradient-x 3s ease infinite; }
+        .animate-fade-in { animation: fade-in 1s ease-out; }
+      `}</style>
+    </div>
+  )
+}
